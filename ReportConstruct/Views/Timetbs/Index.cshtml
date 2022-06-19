@@ -1,0 +1,717 @@
+﻿@model IEnumerable<ReportConstruct.Models.Timetb>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+
+<div id="resizediv">
+    <div style="display:flex; align-items: center; justify-content: center; ">
+        <td>Начальная дата: </td>
+        <td id="ClearInput"><input type="text" id="min" name="min" style="border-style: solid; border-color: lightgray; border-radius: 5px; "></td>
+
+        <td>Конечная дата: </td>
+        <td id="ClearInput"><input type="text" id="max" name="max" style="border-style: solid; border-color: lightgray; border-radius: 5px; "></td>
+    </div>
+    <br />
+    <div onmouseover="OpenSc()"
+         onmouseout="CloseSc()">
+        <table class=" table  hover stripe row-border " id="tadblesort">
+            <thead>
+                <tr>
+                    <th style="background-color: rgb(23 48 22); border-top-left-radius: 20px;">
+                        @Html.DisplayNameFor(model => model.Dates)
+                    </th>
+                    <th style="background-color: rgb(23 48 22);">
+                        @Html.DisplayNameFor(model => model.Names)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Groupname)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Timecome)
+                    </th>
+                    <th>
+                        Начало
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Late)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Lunchleave)
+                    </th>
+                    <th>
+                        Начало обеда
+                    </th>
+                    <th>
+                        Уход на обед раньше
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Lunchcome)
+                    </th>
+                    <th>
+                        Конец обеда
+                    </th>
+                    <th>
+                        Опоздание с обеда
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Timeleave)
+                    </th>
+                    <th>
+                        Конец расписания
+                    </th>
+                    <th>
+                        Уход раньше на
+                    </th>
+                    <th>
+                        Штрафное время
+                    </th>
+                    <th>
+                        Рабочее время
+                    </th>
+                    <th>
+                        Переработка/недоработка
+                    </th>
+                    <th>
+                        Переработка < 2 часов
+                    </th>
+                    <th>
+                        Переработка > 2 часов
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.IsChecked)
+                    </th>
+                    <th>
+                        Действия
+                    </th>
+
+                </tr>
+            </thead>
+            <tbody class="gav">
+                @{
+                    string LeaveBef;
+                    string leaveLunchBef;
+                    string LateLuch;
+                    string Penalty;
+                    string WorkTime = "23:00:00";
+                    string OverUnderWork;
+                    string UnderTwo = "";
+                    string OverTwo = "";
+                }
+
+                @foreach (var item in Model)
+                {
+
+                    <tr class="Emp">
+
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Dates)
+                        </td>
+                        <td class="EmployeeName">
+                            @Html.DisplayFor(modelItem => item.Names)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Groupname)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Timecome)
+                        </td>
+                        <td>
+                            9:00:00
+                        </td>
+                        @if (item.Late == null)
+                        {
+                            <td>
+                                Без опоздания
+                            </td>
+                        }
+                        else
+                        {
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Late)
+                            </td>
+
+                        }
+
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Lunchleave)
+                        </td>
+                        <td>
+                            13:00:00
+                        </td>
+                        @*уход на обед раньше*@
+                        <td>
+
+
+                            @if (Convert.ToDateTime(item.Lunchleave).TimeOfDay < Convert.ToDateTime("13:00:00").TimeOfDay && Convert.ToDateTime(item.Lunchleave).TimeOfDay != Convert.ToDateTime("00:00:00").TimeOfDay)
+                            {
+                                TimeSpan ts = (Convert.ToDateTime("13:00:00").TimeOfDay - Convert.ToDateTime(item.Lunchleave).TimeOfDay);
+                                leaveLunchBef = $"{ts.Hours.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Minutes.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Seconds.ToString().Replace("-", "").PadLeft(2, '0')}";//Minutes.ToString();
+                                @leaveLunchBef;
+                            }
+                            else
+                            {
+                                leaveLunchBef = "00:00:00";
+                                @leaveLunchBef;
+                            }
+                        </td>
+
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Lunchcome)
+                        </td>
+                        <td>
+                            14:00:00
+                        </td>
+                        <td>
+                            @if (Convert.ToDateTime(item.Lunchcome).TimeOfDay > Convert.ToDateTime("14:00:00").TimeOfDay && Convert.ToDateTime(item.Lunchcome).TimeOfDay != Convert.ToDateTime("00:00:00").TimeOfDay)
+                            {
+                                TimeSpan ts = (Convert.ToDateTime(item.Lunchcome).TimeOfDay - Convert.ToDateTime("14:00:00").TimeOfDay);
+                                LateLuch = $"{ts.Hours.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Minutes.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Seconds.ToString().Replace("-", "").PadLeft(2, '0')}";//Minutes.ToString();
+                                @LateLuch;
+                            }
+                            else
+                            {
+                                LateLuch = "00:00:00";
+                                @LateLuch;
+                            }
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Timeleave)
+                        </td>
+                        <td>
+                            18:00:00
+                        </td>
+                        <td>
+                            @if (Convert.ToDateTime(item.Timeleave).TimeOfDay < Convert.ToDateTime("18:00:00").TimeOfDay && Convert.ToDateTime(item.Timeleave).TimeOfDay != Convert.ToDateTime("00:00:00").TimeOfDay)
+                            {
+                                TimeSpan ts = (Convert.ToDateTime("18:00:00").TimeOfDay - Convert.ToDateTime(item.Timeleave).TimeOfDay);
+                                LeaveBef = $"{ts.Hours.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Minutes.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Seconds.ToString().Replace("-", "").PadLeft(2, '0')}";//Minutes.ToString();
+                                @LeaveBef;
+                            }
+                            else
+                            {
+                                LeaveBef = "00:00:00";
+                                @LeaveBef;
+                            }
+                        </td>
+
+
+                        <td>
+                            @{
+                                TimeSpan t = (Convert.ToDateTime(leaveLunchBef).TimeOfDay + Convert.ToDateTime(LateLuch).TimeOfDay + Convert.ToDateTime(LeaveBef).TimeOfDay);
+                                Penalty = $"{t.Hours.ToString().Replace("-", "").PadLeft(2, '0')}:{t.Minutes.ToString().Replace("-", "").PadLeft(2, '0')}:{t.Seconds.ToString().Replace("-", "").PadLeft(2, '0')}";//Minutes.ToString();
+                            }
+                            @Penalty
+                        </td>
+
+                        <td>
+                            @if (Convert.ToDateTime(Penalty).TimeOfDay != Convert.ToDateTime("00:00:00").TimeOfDay) //1. нет никаких нарушений: Время ухода - Начало расписаний - Перерыв на обед (1 час)
+                            {
+                                TimeSpan ts = (Convert.ToDateTime(item.Timeleave).TimeOfDay - Convert.ToDateTime("09:00:00").TimeOfDay - Convert.ToDateTime("01:00:00").TimeOfDay);
+                                WorkTime = $"{ts.Hours.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Minutes.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Seconds.ToString().Replace("-", "").PadLeft(2, '0')}";//Minutes.ToString();
+                            }
+                            @if (item.Late != null)//2. утреннее опоздание: Время ухода - Время прихода - Перерыв на обед (1 час)
+                            {
+                                TimeSpan ts = (Convert.ToDateTime(item.Timeleave).TimeOfDay - Convert.ToDateTime(item.Timecome).TimeOfDay - Convert.ToDateTime("01:00:00").TimeOfDay);
+                                WorkTime = $"{ts.Hours.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Minutes.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Seconds.ToString().Replace("-", "").PadLeft(2, '0')}";//Minutes.ToString();
+                            }
+                            @if (Convert.ToDateTime(leaveLunchBef).TimeOfDay != Convert.ToDateTime("00:00:00").TimeOfDay)//3. ранний уход на обед: Время ухода- Время  прихода - (Конец обеда - Уход на обед)
+                            {
+                                TimeSpan ts = (Convert.ToDateTime(item.Timeleave).TimeOfDay - Convert.ToDateTime(item.Timecome).TimeOfDay - (Convert.ToDateTime("14:00:00").TimeOfDay) - Convert.ToDateTime(item.Lunchleave).TimeOfDay);
+                                WorkTime = $"{ts.Hours.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Minutes.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Seconds.ToString().Replace("-", "").PadLeft(2, '0')}";//Minutes.ToString();
+                            }
+                            @if (Convert.ToDateTime(LateLuch).TimeOfDay != Convert.ToDateTime("00:00:00").TimeOfDay)//4. опоздание с обеда: Время ухода- Время  прихода - (Приход с обеда - Начало обеда)
+                            {
+                                TimeSpan ts = (Convert.ToDateTime(item.Timeleave).TimeOfDay - Convert.ToDateTime(item.Timecome).TimeOfDay - (Convert.ToDateTime(item.Lunchcome).TimeOfDay - Convert.ToDateTime("13:00:00").TimeOfDay));
+                                WorkTime = $"{ts.Hours.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Minutes.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Seconds.ToString().Replace("-", "").PadLeft(2, '0')}";//Minutes.ToString();
+                            }
+                            @if (Convert.ToDateTime(LeaveBef).TimeOfDay != Convert.ToDateTime("00:00:00").TimeOfDay)//5. ранний уход с работы: Время ухода - Начало расписаний - Перерыв на обед (1 час)
+                            {
+                                TimeSpan ts = (Convert.ToDateTime(item.Timeleave).TimeOfDay - Convert.ToDateTime("09:00:00").TimeOfDay - Convert.ToDateTime("01:00:00").TimeOfDay);
+                                WorkTime = $"{ts.Hours.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Minutes.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Seconds.ToString().Replace("-", "").PadLeft(2, '0')}";//Minutes.ToString();
+                            }
+                            @if (item.Dates.DayOfWeek == DayOfWeek.Saturday || item.Dates.DayOfWeek == DayOfWeek.Sunday)// 6.работа в выходной: (Время ухода - Начало расписаний - Перерыв на обед(1:00:00 / 1ч))*2
+                            {
+                                TimeSpan ts = ((Convert.ToDateTime(item.Timeleave).TimeOfDay - Convert.ToDateTime(item.Timecome).TimeOfDay - Convert.ToDateTime("01:00:00").TimeOfDay) * 2);
+                                WorkTime = $"{ts.Hours.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Minutes.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Seconds.ToString().Replace("-", "").PadLeft(2, '0')}";//Minutes.ToString();
+                            }
+                            @if (item.Late != null && Convert.ToDateTime(leaveLunchBef).TimeOfDay != Convert.ToDateTime("00:00:00").TimeOfDay)//7
+                            {
+                                TimeSpan ts = (Convert.ToDateTime(item.Timeleave).TimeOfDay - Convert.ToDateTime(item.Timecome).TimeOfDay - (Convert.ToDateTime("14:00:00").TimeOfDay - Convert.ToDateTime(item.Lunchleave).TimeOfDay));
+                                WorkTime = $"{ts.Hours.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Minutes.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Seconds.ToString().Replace("-", "").PadLeft(2, '0')}";//Minutes.ToString();
+                            }
+                            @if (item.Late != null && Convert.ToDateTime(LateLuch).TimeOfDay != Convert.ToDateTime("00:00:00").TimeOfDay)//8
+                            {
+                                TimeSpan ts = (Convert.ToDateTime(item.Timeleave).TimeOfDay - Convert.ToDateTime(item.Timecome).TimeOfDay - (Convert.ToDateTime(item.Lunchcome).TimeOfDay - Convert.ToDateTime("13:00:00").TimeOfDay));
+                                WorkTime = $"{ts.Hours.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Minutes.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Seconds.ToString().Replace("-", "").PadLeft(2, '0')}";//Minutes.ToString();
+                            }
+                            @if (item.Late != null && Convert.ToDateTime(LeaveBef).TimeOfDay != Convert.ToDateTime("00:00:00").TimeOfDay)//9
+                            {
+                                TimeSpan ts = (Convert.ToDateTime(item.Timeleave).TimeOfDay - Convert.ToDateTime(item.Timecome).TimeOfDay - Convert.ToDateTime("13:00:00").TimeOfDay);
+                                WorkTime = $"{ts.Hours.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Minutes.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Seconds.ToString().Replace("-", "").PadLeft(2, '0')}";//Minutes.ToString();
+                            }
+                            @if (item.Late != null && Convert.ToDateTime(leaveLunchBef).TimeOfDay != Convert.ToDateTime("00:00:00").TimeOfDay && Convert.ToDateTime(LateLuch).TimeOfDay != Convert.ToDateTime("00:00:00").TimeOfDay)//10
+                            {
+                                TimeSpan ts = (Convert.ToDateTime(item.Timeleave).TimeOfDay - Convert.ToDateTime(item.Timecome).TimeOfDay - (Convert.ToDateTime(item.Lunchcome).TimeOfDay - Convert.ToDateTime(item.Lunchleave).TimeOfDay));
+                                WorkTime = $"{ts.Hours.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Minutes.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Seconds.ToString().Replace("-", "").PadLeft(2, '0')}";//Minutes.ToString();
+                            }
+
+                            @if (item.Late != null && Convert.ToDateTime(leaveLunchBef).TimeOfDay != Convert.ToDateTime("00:00:00").TimeOfDay && Convert.ToDateTime(LeaveBef).TimeOfDay != Convert.ToDateTime("00:00:00").TimeOfDay)//11
+                            {
+                                TimeSpan ts = (Convert.ToDateTime(item.Timeleave).TimeOfDay - Convert.ToDateTime(item.Timecome).TimeOfDay - (Convert.ToDateTime("13:00:00").TimeOfDay - Convert.ToDateTime(item.Lunchleave).TimeOfDay));
+                                WorkTime = $"{ts.Hours.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Minutes.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Seconds.ToString().Replace("-", "").PadLeft(2, '0')}";//Minutes.ToString();
+                            }
+                            @*12. опоздание + ранний уход на обед + опоздание с обеда + ранний уход с работы:
+                                Время ухода - Время прихода - (Приход с обеда - Уход на обед)*@
+                            @if (item.Late != null && Convert.ToDateTime(leaveLunchBef).TimeOfDay != Convert.ToDateTime("00:00:00").TimeOfDay && Convert.ToDateTime(LateLuch).TimeOfDay != Convert.ToDateTime("00:00:00").TimeOfDay && Convert.ToDateTime(LeaveBef).TimeOfDay != Convert.ToDateTime("00:00:00").TimeOfDay)
+                            {
+                                TimeSpan ts = (Convert.ToDateTime(item.Timeleave).TimeOfDay - Convert.ToDateTime(item.Timecome).TimeOfDay - (Convert.ToDateTime(item.Lunchcome).TimeOfDay - Convert.ToDateTime(item.Lunchleave).TimeOfDay));
+                                WorkTime = $"{ts.Hours.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Minutes.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Seconds.ToString().Replace("-", "").PadLeft(2, '0')}";//Minutes.ToString();
+                            }
+                            @*13. опозднание+опоздание с обеда+ранний уход с работы:
+                                Время ухода - Время прихода - (Приход с обеда - Начало обеда)*@
+                            @if (item.Late != null && Convert.ToDateTime(LateLuch).TimeOfDay != Convert.ToDateTime("00:00:00").TimeOfDay && Convert.ToDateTime(LeaveBef).TimeOfDay != Convert.ToDateTime("00:00:00").TimeOfDay)
+                            {
+                                TimeSpan ts = (Convert.ToDateTime(item.Timeleave).TimeOfDay - Convert.ToDateTime(item.Timecome).TimeOfDay - (Convert.ToDateTime(item.Lunchcome).TimeOfDay - Convert.ToDateTime("13:00:00").TimeOfDay));
+                                WorkTime = $"{ts.Hours.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Minutes.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Seconds.ToString().Replace("-", "").PadLeft(2, '0')}";//Minutes.ToString();
+                            }
+
+                            @*14. ранний уход на обед+опоздание с обеда:
+                                Время ухода - Начало расписания - (Приход с обед - Уход на обед)*@
+                            @if (Convert.ToDateTime(LeaveBef).TimeOfDay != Convert.ToDateTime("00:00:00").TimeOfDay && Convert.ToDateTime(LateLuch).TimeOfDay != Convert.ToDateTime("00:00:00").TimeOfDay)
+                            {
+                                TimeSpan ts = (Convert.ToDateTime(item.Timeleave).TimeOfDay - Convert.ToDateTime("09:00:00").TimeOfDay - (Convert.ToDateTime(item.Lunchcome).TimeOfDay - Convert.ToDateTime(item.Lunchleave).TimeOfDay));
+                                WorkTime = $"{ts.Hours.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Minutes.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Seconds.ToString().Replace("-", "").PadLeft(2, '0')}";//Minutes.ToString();
+                            }
+                            @*15. раAнний уход на обед+ранний уход с работы:
+                                Время ухода - Начало расписания - (Конец обеда - Уход на обед)*@
+                            @if (Convert.ToDateTime(leaveLunchBef).TimeOfDay != Convert.ToDateTime("00:00:00").TimeOfDay && Convert.ToDateTime(LeaveBef).TimeOfDay != Convert.ToDateTime("00:00:00").TimeOfDay)
+                            {
+                                TimeSpan ts = (Convert.ToDateTime(item.Timeleave).TimeOfDay - Convert.ToDateTime("09:00:00").TimeOfDay - (Convert.ToDateTime("14:00:00").TimeOfDay - Convert.ToDateTime(item.Lunchleave).TimeOfDay));
+                                WorkTime = $"{ts.Hours.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Minutes.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Seconds.ToString().Replace("-", "").PadLeft(2, '0')}";//Minutes.ToString();
+                            }
+
+                            @*16. ранний уход на обед+опоздание с обеда+раниий уход с работы:
+                                Время ухода - Начало расписания - (Приход с обеда - Уход с обеда)*@
+                            @if (Convert.ToDateTime(leaveLunchBef).TimeOfDay != Convert.ToDateTime("00:00:00").TimeOfDay && Convert.ToDateTime(LateLuch).TimeOfDay != Convert.ToDateTime("00:00:00").TimeOfDay && Convert.ToDateTime(LeaveBef).TimeOfDay != Convert.ToDateTime("00:00:00").TimeOfDay)
+                            {
+                                TimeSpan ts = (Convert.ToDateTime(item.Timeleave).TimeOfDay - Convert.ToDateTime("09:00:00").TimeOfDay - (Convert.ToDateTime(item.Lunchcome).TimeOfDay - Convert.ToDateTime(item.Lunchleave).TimeOfDay));
+                                WorkTime = $"{ts.Hours.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Minutes.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Seconds.ToString().Replace("-", "").PadLeft(2, '0')}";//Minutes.ToString();
+                            }
+                            @*17. опоздание с обеда+ранний уход:
+                                Время ухода - Начало расписания - (Приход с обеда - Начало обеда)*@
+                            @if (Convert.ToDateTime(LateLuch).TimeOfDay != Convert.ToDateTime("00:00:00").TimeOfDay && Convert.ToDateTime(LeaveBef).TimeOfDay != Convert.ToDateTime("00:00:00").TimeOfDay)
+                            {
+                                TimeSpan ts = (Convert.ToDateTime(item.Timeleave).TimeOfDay - Convert.ToDateTime("09:00:00").TimeOfDay - (Convert.ToDateTime(item.Lunchcome).TimeOfDay - Convert.ToDateTime("13:00:00").TimeOfDay));
+                                WorkTime = $"{ts.Hours.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Minutes.ToString().Replace("-", "").PadLeft(2, '0')}:{ts.Seconds.ToString().Replace("-", "").PadLeft(2, '0')}";//Minutes.ToString();
+                            }
+
+                            @WorkTime
+                        </td>
+
+                        <td>
+                            @if (Convert.ToDateTime(WorkTime).TimeOfDay < Convert.ToDateTime("08:00:00").TimeOfDay)
+                            {
+
+
+
+                                TimeSpan tsg = (Convert.ToDateTime(WorkTime).TimeOfDay - Convert.ToDateTime("08:00:00").TimeOfDay);
+                                OverUnderWork = "-" + $"{tsg.Hours.ToString().Replace("-", "").PadLeft(2, '0')}:{tsg.Minutes.ToString().Replace("-", "").PadLeft(2, '0')}:{tsg.Seconds.ToString().Replace("-", "").PadLeft(2, '0')}";
+                            }
+                            else
+                            {
+                                TimeSpan tsg = (Convert.ToDateTime(WorkTime).TimeOfDay - Convert.ToDateTime("08:00:00").TimeOfDay);
+                                OverUnderWork = "" + $"{tsg.Hours.ToString().Replace("-", "").PadLeft(2, '0')}:{tsg.Minutes.ToString().Replace("-", "").PadLeft(2, '0')}:{tsg.Seconds.ToString().Replace("-", "").PadLeft(2, '0')}";
+
+                            }
+                            @OverUnderWork
+                        </td>
+                        @{
+                            DateTime dateValue;
+                        }
+                        <td>
+                            @if (DateTime.TryParse(OverUnderWork, out dateValue))
+                            {
+                                if (Convert.ToDateTime(OverUnderWork).TimeOfDay > Convert.ToDateTime("00:30:00").TimeOfDay)
+                                {
+                                    if (Convert.ToDateTime(OverUnderWork).TimeOfDay < Convert.ToDateTime("02:00:00").TimeOfDay && Convert.ToDateTime(OverUnderWork).TimeOfDay > Convert.ToDateTime("00:30:00").TimeOfDay)
+                                    {
+                                        UnderTwo = Convert.ToString(OverUnderWork);
+                                    }
+                                    else if (Convert.ToDateTime(OverUnderWork).TimeOfDay > Convert.ToDateTime("02:00:00").TimeOfDay)
+                                    {
+                                        UnderTwo = "02:00:00";
+                                    }
+                                }
+                                else
+                                {
+                                    UnderTwo = "00:00:00";
+                                }
+                            }
+                            else
+                            {
+                                UnderTwo = "00:00:00";
+                            }
+                            @UnderTwo
+                        </td>
+                        <td>
+                            @if (DateTime.TryParse(OverUnderWork, out dateValue))
+                            {
+                                if (Convert.ToDateTime(OverUnderWork).TimeOfDay > Convert.ToDateTime("02:00:00").TimeOfDay)
+                                {
+                                    TimeSpan tsga = (Convert.ToDateTime(OverUnderWork).TimeOfDay - Convert.ToDateTime(UnderTwo).TimeOfDay);
+                                    OverTwo = "" + $"{tsga.Hours.ToString().Replace("-", "").PadLeft(2, '0')}:{tsga.Minutes.ToString().Replace("-", "").PadLeft(2, '0')}:{tsga.Seconds.ToString().Replace("-", "").PadLeft(2, '0')}";
+
+                                }
+                                else
+                                {
+                                    OverTwo = "00:00:00";
+                                }
+                            }
+                            else
+                            {
+                                OverTwo = "00:00:00";
+                            }
+                            @OverTwo
+
+                        </td>
+
+
+                        @if (item.Late != null && item.IsChecked == false)
+                        {
+                            <td class="dt-body-center">
+                                <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" onclick="return false;">
+                                <label class="form-check-label" for="flexCheckChecked">
+                            </td>
+                            <td class="dt-body-center">
+                                <a asp-action="Edit" asp-route-id="@item.Id"><img class="cell-border" src="~/pencil.svg" /></a>
+                                <a asp-controller="LateReports" asp-action="Index" asp-route-id="@item.Id"><img class="cell-border" src="~/arrow-down.svg" /></a>
+                            </td>
+
+                        }
+                        else
+                        {
+                            @if (item.Late != null)
+                            {
+
+                                <td class="dt-body-center">
+                                    <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" onclick="return false;" checked>
+                                    <label class="form-check-label" for="flexCheckChecked">
+                                </td>
+                                <td class="dt-body-center">
+                                    <a asp-action="Edit" asp-route-id="@item.Id"><img class="cell-border" src="~/pencil.svg" /></a>
+
+                                </td>
+                            }
+
+
+                            else
+                            {
+                                <td class="dt-body-center">
+                                    Без опоздания
+                                </td>
+                                <td class="dt-body-center">
+                                    <a asp-action="Edit" asp-route-id="@item.Id"><img class="cell-border" src="~/pencil.svg" /></a>
+
+                                </td>
+                            }
+                        }
+
+                    </tr>
+
+                }
+
+            </tbody>
+
+
+
+        </table>
+    </div>
+   
+</div>
+
+@section Scripts{
+    <script type="text/javascript" charset="utf8" src="~/js/moment-develop/min/moment.min.js"></script>
+
+    <script type="text/javascript" charset="utf8" src="~/js/datatable/DateTime-1.1.0/js/dataTables.dateTime.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="~/js/datatable/FixedColumns-4.0.1/js/dataTables.fixedColumns.min.js"></script>
+   
+
+    <script src="https://smtpjs.com/v3/smtp.js"></script>
+    <script src="index.js"></script>
+
+
+    <script type='text/javascript'>
+
+
+
+        var table, minDate, maxDate;
+
+        // Custom filtering function which will search data in column four between two values
+        $.fn.dataTable.ext.search.push(
+            function (settings, data, dataIndex) {
+                var min = minDate.val();
+                var max = maxDate.val();
+                var date = new moment(data[0], 'DD.MM.YYYY h:mm:ss');
+
+                if (
+                    (min === null && max === null) ||
+                    (min === null && date <= max) ||
+                    (min <= date && max === null) ||
+                    (min <= date && date <= max)
+                ) {
+                    return true;
+                }
+                return false;
+            }
+        );
+
+
+        $(document).ready(function () {
+
+            minDate = new DateTime($('#min'), {
+                format: 'DD.MM.YYYY h:mm:ss'
+            });
+            maxDate = new DateTime($('#max'), {
+                format: 'DD.MM.YYYY h:mm:ss'
+            });
+            /* 'DD.MM.YYYY h:mm:ss'*/
+            jQuery.extend(jQuery.fn.dataTableExt.oSort, {
+                "DD.MM.YYYYh:mm:ss-asc": function (a, b) {
+                    //var ruDatea = $.trim(a).split('.');
+                    //var ruDateb = $.trim(b).split('.');
+                    if (ruDatea[2] * 1 < ruDateb[2] * 1)
+                        return 1;
+                    if (ruDatea[2] * 1 > ruDateb[2] * 1)
+                        return -1;
+                    if (ruDatea[2] * 1 == ruDateb[2] * 1) {
+                        if (ruDatea[1] * 1 < ruDateb[1] * 1)
+                            return 1;
+                        if (ruDatea[1] * 1 > ruDateb[1] * 1)
+                            return -1;
+                        if (ruDatea[1] * 1 == ruDateb[1] * 1) {
+                            if (ruDatea[0] * 1 < ruDateb[0] * 1)
+                                return 1;
+                            if (ruDatea[0] * 1 > ruDateb[0] * 1)
+                                return -1;
+                        }
+                        else
+                            return 0;
+                    }
+                },
+                "DD.MM.YYYYh:mm:ss-desc": function (a, b) {
+                    //var ruDatea = $.trim(a).split('.');
+                    //var ruDateb = $.trim(b).split('.');
+                    if (ruDatea[2] * 1 < ruDateb[2] * 1)
+                        return -1;
+                    if (ruDatea[2] * 1 > ruDateb[2] * 1)
+                        return 1;
+                    if (ruDatea[2] * 1 == ruDateb[2] * 1) {
+                        if (ruDatea[1] * 1 < ruDateb[1] * 1)
+                            return -1;
+                        if (ruDatea[1] * 1 > ruDateb[1] * 1)
+                            return 1;
+                        if (ruDatea[1] * 1 == ruDateb[1] * 1) {
+                            if (ruDatea[0] * 1 < ruDateb[0] * 1)
+                                return -1;
+                            if (ruDatea[0] * 1 > ruDateb[0] * 1)
+                                return 1;
+                        }
+                        else
+                            return 0;
+                    }
+                }
+            });
+
+
+            table = $('#tadblesort').DataTable({
+                "order": [[3, "desc"]],
+                "scrollY": "450px",
+                "scrollCollapse": true,
+                "paging": true,
+                "compact": true,
+                "lengthMenu": [[5, 10, -1], [5, 10, "All"]],
+
+                fixedHeader: true,
+                scrollX: true,
+                dom: 'lBfrtip',
+                stateSave: true,
+
+                buttons: [
+                    'excel'
+                ],
+
+                columnDefs: [
+                    {
+                        targets: -1,
+                        className: 'dt-body-right'
+                    },
+                    { type: "DD.MM.YYYYh:mm:ss", targets: [1] }
+                ],
+                fixedColumns: {
+                    left: 2
+
+                },
+                "initComplete": function (settings, json) {
+                    $('body').find('.dataTables_scrollBody').addClass("scrollbar");
+
+                },
+
+
+            });
+            $('#min, #max').change(function () {
+                table.draw();
+            });
+
+
+        });
+
+
+        function OpenSc() {
+            $('body').find('.dataTables_scrollBody').addClass("scrollbarshow")
+
+        }
+        function CloseSc() {
+            $('body').find('.dataTables_scrollBody').removeClass("scrollbarshow");
+
+        }
+
+       
+        
+
+
+
+
+    </script>
+
+}
+
+<style>
+
+
+
+    but {
+        background-color: #138738;
+        color: white;
+    }
+
+
+    th, td {
+        white-space: nowrap;
+    }
+
+    td {
+        background-color: white;
+    }
+
+    div.dataTables_wrapper {
+        width: 800px;
+        margin: 0 auto;
+    }
+
+    .raz {
+        text-align: right;
+    }
+
+    input[type=checkbox] {
+        width: 1.2rem;
+        height: 1.2rem;
+        th, td
+    }
+
+    th, td {
+        white-space: nowrap;
+    }
+
+    div.dataTables_wrapper {
+        width: 100%;
+        margin: 0 auto;
+    }
+
+
+
+    .scrollbar::-webkit-scrollbar-track {
+        width: 10px;
+        height: 10px;
+        background-color: white;
+    }
+
+    .scrollbar::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+        overflow: auto;
+        visibility: hidden;
+        background-color: white;
+        border-radius: 5px;
+    }
+
+    .scrollbarshow::-webkit-scrollbar-thumb {
+        width: 10px;
+        height: 10px;
+        overflow: auto;
+        visibility: visible;
+        background-color: rgba(19, 135, 56, 0.5);
+        border-radius: 5px;
+    }
+
+    .dataTables_wrapper .dataTables_scroll {
+        /*   border: 1px solid #ccc;*/
+        background-color: rgb(23 48 22);
+        color: white;
+        margin: 1.5rem 0;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+    }
+
+
+
+
+    div.dataTables_scrollHead table.dataTable {
+        margin-bottom: 0 !important;
+        margin-top: 0 !important;
+        border: 0 !important;
+    }
+
+
+
+
+    .table {
+        border-left: 0px !important;
+        border-right: 0px !important;
+    }
+
+        .table th {
+            border-bottom: 0 !important;
+            border-top: 0 !important;
+        }
+
+    table.dataTable thead tr {
+        color: white;
+    }
+
+    .dt-buttons .dt-button {
+        padding: 4px 6px;
+    }
+
+    h5 {
+        color: black;
+        font-family: 'Lato', sans-serif;
+        font-size: 20px;
+    }
+</style>
+
+<link rel="stylesheet" type="text/css" base href="./js/datatable/datatables.css" />
+<script type="text/javascript" charset="utf8" src="~/js/datatable/datatables.js"></script>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript" charset="utf8" src="~/js/datatable/FixedColumns-4.0.1/js/dataTables.fixedColumns.min.js"></script>
+
+
+
+
+
+
+

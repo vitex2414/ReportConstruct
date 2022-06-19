@@ -1,0 +1,157 @@
+﻿@model IEnumerable<ReportConstruct.Models.LateReports>
+
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Скан Обьяснительной</h1>
+
+<div class="container">
+    <body>
+        <form name="ValidInp" method="post" enctype="multipart/form-data" asp-controller="LateReports" asp-action="Upload">
+            <input type="file" name="postedFiles" multiple accept="image/png, image/jpeg , video/mp3,video/mp4,application/pdf" />
+
+            <input hidden type="text" name="id" value="@ViewData["id"]" />
+
+
+
+            <input style="background-color: #138738; color: white; border-style: none; border-radius: 5px;" type="submit" value="Загрузить" />
+
+            <br />Комментарий
+
+            <input style="height: 5rem; width: 40rem; margin-top: 1rem;  border-radius: 5px;" type="text" name="comments" title="Коментарий" />
+            <br />
+            @if (TempData["Message"] != null)
+            {
+                <script src="~/lib/jquery/dist/jquery.min.js"></script>
+                <script type="text/javascript">
+            $(document).ready(function () {
+                alert("@TempData["Message"]");
+            });
+                </script>
+            }
+        </form>
+
+    </body>
+    <br />
+    <div>
+        <a style="background-color: #138738; color:white;" href="~/ob.pdf" download class="download btn">Скачать форму обьяснительной</a>
+    </div>
+</div>
+<br />
+
+
+<table class="table container" >
+    <thead>
+        <tr>
+            <th hidden>
+                @Html.DisplayNameFor(model => model.Id_late_day)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Names)
+            </th>
+            <th hidden>
+                @Html.DisplayNameFor(model => model.Path)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Comments)
+            </th>
+            <th>
+                Скачать
+            </th>
+            @if ((User.Claims.Last().Value.ToString() == "Admin")|| (User.Claims.Last().Value.ToString() != "-"))
+            {
+                <th>
+                    Утвердить
+                </th>
+            }
+                <th>
+
+                </th>
+            </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+        <tr>
+            <td hidden>
+                @Html.DisplayFor(modelItem => item.Id_late_day)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Names)
+            </td>
+            <td hidden>
+                @Html.DisplayFor(modelItem => item.Path)
+            </td>
+            <td >
+                @Html.DisplayFor(modelItem => item.Comments)
+            </td>
+            <td>
+                <a title="Скачать файл" href="@item.Path" download class="download "><img class="cell-border" src="~/arrow-down.svg" /></a>
+            </td>
+            @if((User.Claims.Last().Value.ToString() == "Admin")|| (User.Claims.Last().Value.ToString() != "-")){
+            <td>
+
+                <a title="Утвердить" asp-controller="Timetbs" asp-action="VerifyRep" asp-route-id="@item.Id_late_day"><img class="cell-border" src="~/check.svg" /></a>
+
+            </td>
+            }
+            <td>
+                <a title="Предпросмотр файла" onclick="Getochko('@item.Path')" data-toggle="modal" data-target="#exampleModal"><img class="cell-border" src="~/search.svg" /></a>
+            </td>
+        </tr>
+        } 
+    </tbody>
+</table>
+
+
+
+<div style="transition: 0.7s" class="modal fade " id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Предпросмотр</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body " style="height:70vh">
+                <embed id="ochko"  type = "application/pdf" width = "100%" height = "100%"/>
+            </div>
+            <div class="modal-footer">
+                <button style="background-color: #138738; color:white;" type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>              
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function validateForm() {
+        var x = document.forms["ValidInp"]["postedFiles"].value;
+        if (x == " ") {
+            alert("Name must be filled out");
+            return false;
+        }
+
+    }
+
+    function Getochko(path) {
+        console.log("huuuuuuuuuui");
+        $('#ochko').attr('src', path);
+      
+    }
+  
+</script>
+
+<style>
+
+    input[type=file]::file-selector-button {
+        background-color: #138738;
+        color: white;
+        border-style: none;
+        border-radius: 5px;
+    }
+
+</style>

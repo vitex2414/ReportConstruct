@@ -1,0 +1,120 @@
+﻿@model ReportConstruct.Models.Timetb
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+
+
+<h4>Опоздание</h4>
+<hr />
+<div>
+    <div class="col-md-8">
+        <form asp-action="Edit" class="form">
+            <div>
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="Id" />
+
+                <div class="form-group">
+                    <label asp-for="Dates" class="control-label"></label>
+                    <input asp-for="Dates" readonly class="form-control" />
+                    <span asp-validation-for="Dates" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Names" class="control-label"></label>
+                    <input asp-for="Names" readonly class="form-control" />
+                    <span asp-validation-for="Names" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Timecome" class="control-label"></label>
+                    <input asp-for="Timecome" class="form-control" />
+                    <span asp-validation-for="Timecome" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Late" class="control-label"></label>
+                    <input asp-for="Late" class="form-control" />
+                    <span asp-validation-for="Late" class="text-danger"></span>
+                </div>
+           
+            <div class="form-group">
+                <input type="submit" value="Сохранить" class="btn btn-primary" />
+            </div>
+            <div class="form-group">
+                <a class="btn btn-primary" asp-action="Index">Назад</a>
+            </div>
+            </div>
+            <div>
+                <div class="form-group">
+                    <label asp-for="Lunchleave" class="control-label"></label>
+                    <input asp-for="Lunchleave" readonly class="form-control" />
+                    <span asp-validation-for="Lunchleave" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Lunchcome" class="control-label"></label>
+                    <input asp-for="Lunchcome" readonly class="form-control" />
+                    <span asp-validation-for="Lunchcome" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Timeleave" class="control-label"></label>
+                    <input asp-for="Timeleave" readonly class="form-control" />
+                    <span asp-validation-for="Timeleave" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Groupname" class="control-label"></label>
+                    <input asp-for="Groupname" readonly class="form-control" />
+                    <span asp-validation-for="Groupname" class="text-danger"></span>
+                </div>
+
+
+            </div>
+            @if (Model.Late != null)
+            {
+                <div class="form-group">
+                    <label asp-for="IsChecked" class="control-label"></label>
+                    <br />
+                    <input id="checkbox" asp-for="IsChecked" class="align-self-md-center" />
+                    <span asp-validation-for="IsChecked" class="text-danger"></span>
+                </div>
+
+
+            }
+
+
+
+        </form>
+       
+        
+       
+    </div>
+
+    @*<a href="~/ob.pdf" download class="download"> down</a>*@
+
+</div>
+
+
+
+<style>
+
+
+    input[id=checkbox] {
+        width: 1.3rem;
+        height: 1.3rem;
+        th, td
+    }
+
+    .form {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        align-content: flex-start;
+        gap: 3rem;
+    }
+
+    .right {
+        text-align-last: right;
+    }
+</style>
+
+ <script type="text/javascript" charset="utf8" src="~/js/print.min.js"></script>
+<script type="text/javascript" charset="utf8" src="~/js/print.min.css" ></script>

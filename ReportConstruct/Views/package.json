@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "monaco-editor": "file:../../../../../Downloads/monaco-editor-0.26.1.tgz"
+  }
+}

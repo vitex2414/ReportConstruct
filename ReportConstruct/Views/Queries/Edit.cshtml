@@ -1,0 +1,289 @@
+﻿@model ReportConstruct.Models.Queries
+
+@{
+    ViewData["Title"] = "Edit";
+
+}
+
+
+
+<h4>Запрос</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" class="form-control" />
+
+            <div class="form-group">
+                <label asp-for="Query" class="control-label"></label>
+                <input id="Query" type="hidden" asp-for="Query" class="form-control" />
+                <span asp-validation-for="Query" class="text-danger"></span>
+            </div>
+
+            <div id="code" style="width: 1000px; height: 200px; border: 1px solid grey"></div>
+
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div style="display:flex">
+                <div class="form-group">
+                    <table class="table table-sm">
+                        <thead class="thead-dark">
+                            <tr><td>Название параметра</td><td>Значение параметра</td></tr>
+                        </thead>
+                        <tbody id="ColumnLis">
+                            @for (int i = 0; i < ViewBag.Params.Count; i++)
+                            {
+                                <tr id="@i" class="params">
+                                    <td><input type="text" value="@ViewBag.Params[i].ParamName" required="required" class="Name" name="parameters[@i].ParamName" /></td>
+                                    <td><input type="text" value="@ViewBag.Params[i].ParamValue" name="parameters[@i].ParamValue" /></td>
+                                    <td><input type="hidden" value="@ViewBag.Params[i].QueryId" name="parameters[@i].QueryId" /></td>
+                                    <td><input type="button" value="удалить" onclick="delColumn(this)" /></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <input type="button" id="newColumnBtn" value="Добавить параметр" class="btn btn-secondary" />
+                </div>
+
+                <div class="form-group" style="margin-left: 10%">
+                    <table class="table table-sm">
+                        <thead class="thead-dark">
+                            <tr><td>Поле запроса</td><td>Поле отчета</td></tr>
+                        </thead>
+                        <tbody id="FieldList">
+                            @for (int i = 0; i < ViewBag.Fields.Count; i++)
+                            {
+                                <tr id="@(i+100)" class="fields">
+                                    <td><input type="text" value="@ViewBag.Fields[i].QueryField" required="required" class="Name" name="reportFields[@i].QueryField" /></td>
+                                    <td><input type="text" value="@ViewBag.Fields[i].DisplayName" class="Value" name="reportFields[@i].DisplayName" /></td>
+                                    <td><input type="button" value="удалить" onclick="delField(this)"></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <input type="button" id="newFieldBtn" value="Добавить" class="btn btn-secondary" />
+                </div>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Сохранить" class="btn btn-primary" />
+            </div>
+            <div class="form-group">
+                <input type="submit" formaction="/Queries/SendQuery" formmethod="post" value="Скачать отчет" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Назад</a>
+</div>
+
+@*Manaco editor setup*@
+<script>var require = { paths: { 'vs': '/lib/package/min/vs' } };</script>
+<script type="text/javascript" src="~/lib/package/min/vs/loader.js"></script>
+<script type="text/javascript" src="~/lib/package/min/vs/editor/editor.main.nls.js"></script>
+<script type="text/javascript" src="~/lib/package/min/vs/editor/editor.main.js"></script>
+
+
+<script>
+    let field_id = document.getElementsByClassName("fields").length;
+    console.log(field_id + 100);
+    let newFieldBtn = document.getElementById('newFieldBtn')
+    newFieldBtn.addEventListener("click",
+        () => {
+
+            let tr = document.createElement('tr');
+            tr.id = field_id + 100;
+            tr.innerHTML = `<td><input type="text" required="required" class="Name" name = "reportFields[${field_id}].QueryField"/></td>
+                            <td><input type="text"  class="Value" name = "reportFields[${field_id}].DisplayName"/></td>
+                            <td><input type = "button" value="удалить" onclick="delField(this)"></td> `;
+            let table = document.getElementById('FieldList');
+            field_id++;
+            table.append(tr);
+        })
+
+    function delField(elem) {
+
+        let curr_id = elem.parentElement.parentElement.id;
+        elem.parentElement.parentElement.remove();
+
+        curr_id = parseInt(curr_id, 10);
+
+        for (let i = curr_id + 1; i < field_id + 100; i++) {
+            let temp = i - 1;
+
+            let elem = document.getElementById(`${i}`);
+            elem.id = temp;
+
+            elem.children[0].children[0].setAttribute("name", `reportFields[${temp - 100}].QueryField`);
+            elem.children[1].children[0].setAttribute("name", `reportFields[${temp - 100}].DisplayName`);
+            console.log(elem.children);
+        }
+
+        field_id--;
+    }
+
+
+
+    let id = document.getElementsByClassName("params").length;
+    let const_id = 0;
+    let newCurrBnt = document.getElementById('newColumnBtn');
+
+    newCurrBnt.addEventListener("click",
+        () => {
+
+            let tr = document.createElement('tr');
+
+            tr.id = id;
+            tr.innerHTML = `<td><input type="text" required="required" class="Name" name = "parameters[${id}].ParamName"/></td>
+                            <td><input type="text"  class="Value" name = "parameters[${id}].ParamValue"/></td>
+                            <td><input type="hidden" class="Value" name = "parameters[${id}].QueryId"/></td>
+                            <td><input type = "button" value="удалить" onclick="delColumn(this)"/></td> `;
+            let table = document.getElementById('ColumnLis');
+
+            table.append(tr);
+            id++;
+        });
+
+    function delColumn(elem) {
+
+        let curr_id = elem.parentElement.parentElement.id;
+        elem.parentElement.parentElement.remove();
+
+        curr_id = parseInt(curr_id, 10);
+
+        for (let i = curr_id + 1; i < id; i++) {
+            let temp = i - 1;
+
+            let elem = document.getElementById(`${i}`);
+            console.log(elem);
+            elem.id = temp;
+            console.log("ss");
+            elem.children[0].children[0].setAttribute("name", `parameters[${temp}].ParamName`);
+            elem.children[1].children[0].setAttribute("name", `parameters[${temp}].ParamValue`);
+            elem.children[2].children[0].setAttribute("name", `parameters[${temp}].QueryId`);
+
+        }
+
+        id--;
+
+    }
+
+
+    //monaco editor
+      require(['vs/editor/editor.main'], function () {
+
+        function createDependencyProposals(range) {
+            // returning a static list of proposals, not even looking at the prefix (filtering is done by the Monaco editor),
+            // here you could do a server side lookup
+            return [
+                {
+                    label: 'select',
+                    kind: monaco.languages.CompletionItemKind.Function,
+                    documentation: "The Lodash library exported as Node.js modules.",
+                    insertText: 'select',
+                    range: range
+                },
+                {
+                    label: 'where',
+                    kind: monaco.languages.CompletionItemKind.Function,
+                    documentation: "Fast, unopinionated, minimalist web framework",
+                    insertText: 'where',
+                    range: range
+                },
+                {
+                    label: 'order by',
+                    kind: monaco.languages.CompletionItemKind.Function,
+                    documentation: "Recursively mkdir, like <code>mkdir -p</code>",
+                    insertText: 'order by',
+                    range: range
+                },
+                {
+                    label: 'inner',
+                    kind: monaco.languages.CompletionItemKind.Function,                    
+                    insertText: 'inner',
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    range: range
+                },
+                 {
+                    label: 'outer',
+                    kind: monaco.languages.CompletionItemKind.Function,                    
+                    insertText: 'outer',
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    range: range
+                },
+                  {
+                    label: 'right',
+                    kind: monaco.languages.CompletionItemKind.Function,                    
+                    insertText: 'right',
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    range: range
+                },
+                {
+                    label: 'join',
+                    kind: monaco.languages.CompletionItemKind.Function,                    
+                    insertText: 'join',
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    range: range
+                },
+                {
+                    label: 'group by',
+                    kind: monaco.languages.CompletionItemKind.Function,                    
+                    insertText: 'group by',
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    range: range
+                }
+            ];
+        }
+
+
+        monaco.languages.registerCompletionItemProvider('sql', {
+            provideCompletionItems: function (model, position) {
+                // find out if we are completing a property in the 'dependencies' object.
+                var textUntilPosition = model.getValueInRange({ startLineNumber: 1, startColumn: 1, endLineNumber: position.lineNumber, endColumn: position.column });
+                var match = textUntilPosition.match("");
+                if (!match) {
+                    return { suggestions: [] };
+                }
+                var word = model.getWordUntilPosition(position);
+                var range = {
+                    startLineNumber: position.lineNumber,
+                    endLineNumber: position.lineNumber,
+                    startColumn: word.startColumn,
+                    endColumn: word.endColumn
+                };
+                return {
+                    suggestions: createDependencyProposals(range)
+                };
+            }
+        });
+
+           let textInput = document.getElementById("Query");
+        editor = monaco.editor.create(document.getElementById("code"), {
+            theme: 'vs-dark',
+            value: textInput.getAttribute("value"),
+            language: 'sql'
+        });
+        editor.layout();
+
+        
+        
+          textInput.setAttribute("value", editor.getValue());
+        
+          editor.onDidChangeModelContent((event) => {
+              console.log(editor.getValue());
+              textInput.setAttribute("value", editor.getValue());
+          });
+    });
+
+</script>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

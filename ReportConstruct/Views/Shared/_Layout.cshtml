@@ -1,0 +1,218 @@
+﻿<!DOCTYPE html>
+<html lang="en" id="res">
+
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ReportConstruct</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet"
+          data-name="vs/editor/editor.main"
+          href="~/lib/package/min/vs/editor/editor.main.css" />
+
+
+
+
+</head>
+<body onload=openNav()>
+   
+
+        <div id="mySidenav" class="sidenav" >
+            <div class="container">
+                <a asp-area="" asp-controller="Home" asp-action="Index"><img type="logo" class="cell-border" src="~/logo3.png" /></a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div >
+                    <ul class="navbar-nav flex-grow-1">
+
+
+
+
+
+
+                        @if (!User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a style="padding: 10px;" class="nav-link btn-outline-success my-2 my-sm-0" asp-area="" asp-controller="Home" asp-action="Login">Вход</a>
+                            </li>
+                        }
+                        else
+                        {
+                            @if (User.Claims.Last().Value.ToString() != "-")
+                            {
+                                <li class="nav-item">
+                                    <a style="padding: 10px; " class="nav-link  btn-outline-success my-2 my-sm-0" asp-area="" asp-controller="Timetbs" asp-action="Index">Рабочее время</a>
+                                </li>
+                            }
+                            <li class="nav-item">
+                                <a style="padding: 10px; " class="nav-link  btn-outline-success my-2 my-sm-0" asp-area="" asp-controller="EmpTime" asp-action="Index">Опоздания</a>
+                            </li>
+                            @if ((User.Claims.Last().Value.ToString() != "Admin") && (User.Claims.Last().Value.ToString() != "-"))
+                            {
+                                <li class="nav-item">
+                                    <a style="padding: 10px; " class="nav-link  btn-outline-success my-2 my-sm-0" asp-area="" asp-controller="BrunchD" asp-action="Index">Подразделение</a>
+                                </li>
+                            }
+                                @*<li class="nav-item">
+                <a style="padding: 10px;" class="nav-link btn-outline-success my-2 my-sm-0" asp-area="" asp-controller="Emails" asp-action="Index">Почты для рассылки</a>
+                </li>*@
+                                @if (User.Claims.Last().Value.ToString() == "Admin")
+                                {
+                                    <li class="nav-item">
+                                        <a style="padding: 10px;" class="nav-link btn-outline-success my-2 my-sm-0" asp-area="" asp-controller="Queries" asp-action="Index">Запросы</a>
+                                    </li>
+                                }
+                                <li class="nav-item">
+                                    <a style="padding: 10px;" class="nav-link btn-outline-success my-2 my-sm-0" asp-area="" asp-controller="Home" asp-action="Logout">Выход</a>
+                                </li>
+                            }
+                            <li class="nav-item">
+                                <br />
+                            </li>
+
+                            <li class="nav-item">
+                                <a onclick="closeNav()"><img type="outputarrow" class="cell-border" src="~/arrow4.svg" /></a>
+                            </li>
+                        </ul>
+                </div>
+            </div>
+
+        </div>
+   
+
+   
+   
+            <a  onclick="openNav()"><img id="openbutton" type="inputarrow" class="cell-border" src="~/list4.svg" /></a>
+ 
+ 
+
+
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2021 - SCUD-Late - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <a>Korobovtsev Victor</a>
+        </div>
+    </footer>
+
+
+
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script type="text/javascript" charset="utf8" src="~/js/datatable/datatables.js"></script>
+    <link rel="stylesheet" type="text/css" base href="./js/datatable/datatables.css" />
+
+
+
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
+
+
+<style>
+    .sidenav {
+        height: 100%; /* 100% Full-height */
+        width: 0; /* 0 width - change this with JavaScript */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Stay on top */
+        top: 0; /* Stay at the top */
+        left: 0;
+        background-color: #138738; /* Black*/
+        
+        overflow-x: hidden; /* Disable horizontal scroll */
+        padding-top: 40px; /* Place content 60px from the top */
+        transition: 0.8s; /* 0.5 second transition effect to slide in the sidenav */
+        box-shadow: 0 0 16px black;
+        z-index: 1
+    }
+   
+
+    
+/* The navigation menu links */
+        .sidenav a {
+            position: sticky;
+            padding: 8px 8px 8px 32px;
+            text-decoration: none;
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            transition: 0.4s;
+            text-align: left;
+            transition: 1s;
+            border-radius: 5px;
+        }
+
+/* When you mouse over the navigation links, change their color */
+            .sidenav a:hover {
+                color: rgb(255 226 0);
+                transition: 0.2s;
+            }
+
+
+/* Position and style the close button (top right corner) */
+.sidenav .closebtn {
+  position: absolute;
+  text-align: center;
+  top: 0;
+  right: 25px;
+  font-size: 30px;
+  margin-left: 50px;
+}
+
+/* Style page content - use this if you want to push the page content to the right when you open the side navigation */
+  
+
+   
+    img[type=inputarrow] {
+        width: 6.2rem;
+        height: 6.2rem;
+        img
+    }
+
+    img[type=outputarrow] {
+        width: 3.2rem;
+        height: 3.2rem;
+        color: #4747d1;
+        img
+    }
+    img[type=logo] {
+        width: 5.2rem;
+        height: 5.2rem;
+        color: #4747d1;
+        img
+    }
+</style>
+ 
+<script>
+    function openNav() {
+        document.getElementById("mySidenav").style.width = "200px";
+        document.getElementById("res").style.marginLeft = "70px";
+        document.getElementById("res").style.transition = "0.8s";
+        document.getElementById("openbutton").style.visibility = 'hidden';
+        document.body.style.backgroundColor = "white";
+    }
+
+    /* Set the width of the side navigation to 0 */
+    function closeNav() {
+        document.getElementById("mySidenav").style.width = "0";
+        document.getElementById("res").style.marginLeft = "0";
+        document.getElementById("openbutton").style.visibility = 'visible';
+        document.body.style.backgroundColor = "white";
+    }
+
+  
+</script>

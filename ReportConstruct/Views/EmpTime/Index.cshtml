@@ -1,0 +1,351 @@
+﻿@model IEnumerable<ReportConstruct.Models.Timetb>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Опоздания</h1>
+ <div onmouseover="OpenSc()"
+             onmouseout="CloseSc()">
+<table class=" table  hover stripe row-border " id="tadblesort">
+    <thead>
+        <tr>
+            <th style="background-color: rgb(23 48 22); border-top-left-radius: 20px;">
+                @Html.DisplayNameFor(model => model.Dates)
+            </th>
+            <th style="background-color: rgb(23 48 22);">
+                @Html.DisplayNameFor(model => model.Names)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Groupname)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Timecome)
+            </th>
+            <th>
+                Начало рабочего дня
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Late)
+            </th>
+
+            <th>
+                @Html.DisplayNameFor(model => model.IsChecked)
+            </th>
+            <th>
+                Действия
+            </th>
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Dates)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Names)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Groupname)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Timecome)
+                </td>
+                <td>
+                    9:00:00
+                </td>
+                @if (item.Late == null)
+                {
+                    <td>
+                        Без опоздания
+                    </td>
+                }
+                else
+                {
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Late)
+                    </td>
+
+                }
+
+                @if (item.IsChecked == false)
+                {
+                    <td>
+                        <input  type="checkbox" value="" onclick="return false;">
+                    </td>
+                }
+                else
+                {
+                    <td >
+                        <input  type="checkbox" value="" onclick="return false;" checked>
+                    </td>
+                }
+
+
+                @if (item.Late != null && item.IsChecked == false)
+                {
+                    <td class="dt-body-center">
+                        <a asp-controller="LateReports" asp-action="Index" asp-route-id="@item.Id"><img class="cell-border" src="~/arrow-down.svg" /></a>
+                    </td>
+
+                }
+                else if (item.IsChecked == true)
+                {
+                    <td class="dt-body-center">
+                        Обьяснительая утверждена
+                    </td>
+
+                }
+                else
+                {
+                    <td class="dt-body-center">
+                        Без опоздания
+                    </td>
+                }
+
+            </tr>
+        }
+    </tbody>
+</table>
+     </div>
+@section Scripts{
+    <script type="text/javascript" charset="utf8" src="~/js/moment-develop/min/moment.min.js"></script>
+
+    <script type="text/javascript" charset="utf8" src="~/js/datatable/DateTime-1.1.0/js/dataTables.dateTime.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="~/js/datatable/FixedColumns-4.0.1/js/dataTables.fixedColumns.min.js"></script>
+    <script type='text/javascript'>
+        $(document).ready(function () {
+
+            minDate = new DateTime($('#min'), {
+                format: 'DD.MM.YYYY h:mm:ss'
+            });
+            maxDate = new DateTime($('#max'), {
+                format: 'DD.MM.YYYY h:mm:ss'
+            });
+            /* 'DD.MM.YYYY h:mm:ss'*/
+            jQuery.extend(jQuery.fn.dataTableExt.oSort, {
+                "DD.MM.YYYYh:mm:ss-asc": function (a, b) {
+                    //var ruDatea = $.trim(a).split('.');
+                    //var ruDateb = $.trim(b).split('.');
+                    if (ruDatea[2] * 1 < ruDateb[2] * 1)
+                        return 1;
+                    if (ruDatea[2] * 1 > ruDateb[2] * 1)
+                        return -1;
+                    if (ruDatea[2] * 1 == ruDateb[2] * 1) {
+                        if (ruDatea[1] * 1 < ruDateb[1] * 1)
+                            return 1;
+                        if (ruDatea[1] * 1 > ruDateb[1] * 1)
+                            return -1;
+                        if (ruDatea[1] * 1 == ruDateb[1] * 1) {
+                            if (ruDatea[0] * 1 < ruDateb[0] * 1)
+                                return 1;
+                            if (ruDatea[0] * 1 > ruDateb[0] * 1)
+                                return -1;
+                        }
+                        else
+                            return 0;
+                    }
+                },
+                "DD.MM.YYYYh:mm:ss-desc": function (a, b) {
+                    //var ruDatea = $.trim(a).split('.');
+                    //var ruDateb = $.trim(b).split('.');
+                    if (ruDatea[2] * 1 < ruDateb[2] * 1)
+                        return -1;
+                    if (ruDatea[2] * 1 > ruDateb[2] * 1)
+                        return 1;
+                    if (ruDatea[2] * 1 == ruDateb[2] * 1) {
+                        if (ruDatea[1] * 1 < ruDateb[1] * 1)
+                            return -1;
+                        if (ruDatea[1] * 1 > ruDateb[1] * 1)
+                            return 1;
+                        if (ruDatea[1] * 1 == ruDateb[1] * 1) {
+                            if (ruDatea[0] * 1 < ruDateb[0] * 1)
+                                return -1;
+                            if (ruDatea[0] * 1 > ruDateb[0] * 1)
+                                return 1;
+                        }
+                        else
+                            return 0;
+                    }
+                }
+            });
+
+
+            table = $('#tadblesort').DataTable({
+                "order": [[3, "desc"]],
+                "scrollY": "450px",
+                "scrollCollapse": true,
+                "paging": true,
+                "compact": true,
+                "lengthMenu": [[5, 10, -1], [5, 10, "All"]],
+
+                fixedHeader: true,
+                scrollX: true,
+                dom: 'lBfrtip',
+                stateSave: true,
+
+                buttons: [
+                    'excel'
+                ],
+
+                columnDefs: [
+                    {
+                        targets: -1,
+                        className: 'dt-body-right'
+                    },
+                    { type: "DD.MM.YYYYh:mm:ss", targets: [1] }
+                ],
+                fixedColumns: {
+                    left: 2
+
+                },
+                "initComplete": function (settings, json) {
+                    $('body').find('.dataTables_scrollBody').addClass("scrollbar");
+
+                },
+
+
+            });
+            $('#min, #max').change(function () {
+                table.draw();
+            });
+
+
+        });
+
+
+        function OpenSc() {
+            $('body').find('.dataTables_scrollBody').addClass("scrollbarshow")
+
+        }
+        function CloseSc() {
+            $('body').find('.dataTables_scrollBody').removeClass("scrollbarshow");
+
+        }
+    </script>
+}
+<style>
+
+
+
+    but {
+        background-color: #138738;
+        color: white;
+    }
+
+
+    th, td {
+        white-space: nowrap;
+    }
+
+    td {
+        background-color: white;
+    }
+
+    div.dataTables_wrapper {
+        width: 800px;
+        margin: 0 auto;
+    }
+
+    .raz {
+        text-align: right;
+    }
+
+    input[type=checkbox] {
+        width: 1.2rem;
+        height: 1.2rem;
+        margin-left: 4px;
+        margin-top: 8px;
+        
+    }
+
+    th, td {
+        white-space: nowrap;
+    }
+
+    div.dataTables_wrapper {
+        width: 100%;
+        margin: 0 auto;
+    }
+
+
+
+    .scrollbar::-webkit-scrollbar-track {
+        width: 10px;
+        height: 10px;
+        background-color: white;
+    }
+
+    .scrollbar::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+        overflow: auto;
+        visibility: hidden;
+        background-color: white;
+        border-radius: 5px;
+    }
+
+    .scrollbarshow::-webkit-scrollbar-thumb {
+        width: 10px;
+        height: 10px;
+        overflow: auto;
+        visibility: visible;
+        background-color: rgba(19, 135, 56, 0.5);
+        border-radius: 5px;
+    }
+
+    .dataTables_wrapper .dataTables_scroll {
+        /*   border: 1px solid #ccc;*/
+        background-color: rgb(23 48 22);
+        color: white;
+        margin: 1.5rem 0;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+    }
+
+
+
+
+    div.dataTables_scrollHead table.dataTable {
+        margin-bottom: 0 !important;
+        margin-top: 0 !important;
+        border: 0 !important;
+    }
+
+
+
+
+    .table {
+        border-left: 0px !important;
+        border-right: 0px !important;
+    }
+
+        .table th {
+            border-bottom: 0 !important;
+            border-top: 0 !important;
+        }
+
+    table.dataTable thead tr {
+        color: white;
+    }
+
+    .dt-buttons .dt-button {
+        padding: 4px 6px;
+    }
+
+    h5 {
+        color: black;
+        font-family: 'Lato', sans-serif;
+        font-size: 20px;
+    }
+</style>
+<link rel="stylesheet" type="text/css" base href="./js/datatable/datatables.css" />
+<script type="text/javascript" charset="utf8" src="~/js/datatable/datatables.js"></script>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript" charset="utf8" src="~/js/datatable/FixedColumns-4.0.1/js/dataTables.fixedColumns.min.js"></script>
+

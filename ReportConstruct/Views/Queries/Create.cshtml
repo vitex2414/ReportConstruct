@@ -1,0 +1,260 @@
+﻿@model ReportConstruct.Models.Queries
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+
+
+<h4>Запрос</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Query" class="control-label"></label>
+                <input id="Query" type="hidden" asp-for="Query" class="form-control" />
+                <span asp-validation-for="Query" class="text-danger"></span>
+            </div>
+            <div id="code" style="width: 1000px; height: 200px; border: 1px solid grey"></div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div style="display:flex">
+                <div class="form-group">
+                    <table id="ColumnLis" class="table table-sm">
+                        <thead class="thead-dark">
+                            <tr><td>Название параметра</td><td>Значение параметра</td></tr>
+                        </thead>
+                    </table>
+                    <input type="button" id="newColumnBtn" value="Добавить параметр" class="btn btn-secondary" />
+                </div>
+
+                <div class="form-group" style="margin-left:10%">
+                    <table id="FieldList" class="table table-sm">
+                        <thead class="thead-dark">
+                            <tr><td>Поле запроса</td><td>Поле отчета</td></tr>
+                        </thead>
+                    </table>
+                    <input type="button" id="newFieldBtn" value="Добавить" class="btn btn-secondary" />
+                </div>
+
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Добавить" class="btn btn-primary" />
+            </div>
+
+
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Назад</a>
+</div>
+
+@*Manaco editor setup*@  
+<script>var require = { paths: { 'vs': '/lib/package/min/vs' } };</script>
+<script type="text/javascript" src="~/lib/package/min/vs/loader.js"></script>
+<script type="text/javascript" src="~/lib/package/min/vs/editor/editor.main.nls.js"></script>
+<script type="text/javascript" src="~/lib/package/min/vs/editor/editor.main.js"></script>
+
+<script>
+    let id = -1;
+    let newCurrBnt = document.getElementById('newColumnBtn');
+
+
+
+    let field_id = -1
+    let newFieldBtn = document.getElementById('newFieldBtn')
+    newFieldBtn.addEventListener("click",
+        () => {
+
+            let tr = document.createElement('tr');
+            field_id++;
+            tr.id = field_id + 100;
+            tr.innerHTML = `<td><input type="text" required="required" class="Name" name = "reportFields[${field_id}].QueryField"/></td>
+                            <td><input type="text"  class="Value" name = "reportFields[${field_id}].DisplayName"/></td>
+                            <td><input type = "button" value="удалить" onclick="delField(this)"></td> `;
+            let table = document.getElementById('FieldList');
+
+            table.append(tr);
+        })
+
+    function delField(elem) {
+
+        let curr_id = elem.parentElement.parentElement.id;
+        elem.parentElement.parentElement.remove();
+
+        curr_id = parseInt(curr_id, 10);
+
+        for (let i = curr_id + 1; i <= field_id + 100; i++) {
+            let temp = i - 1;
+
+            let elem = document.getElementById(`${i}`);
+            elem.id = temp;
+
+            elem.children[0].children[0].setAttribute("name", `reportFields[${temp}].QueryField`);
+            elem.children[1].children[0].setAttribute("name", `reportFields[${temp}].DisplayName`);
+            console.log(elem.children);
+        }
+
+        field_id--;
+    }
+
+    newCurrBnt.addEventListener("click",
+        () => {
+
+            let tr = document.createElement('tr');
+            id++;
+            tr.id = id;
+            tr.innerHTML = `<td><input type="text" required="required" class="Name" name = "parameters[${id}].ParamName"/></td>
+                            <td><input type="text"  class="Value" name = "parameters[${id}].ParamValue"/></td>
+                            <td><input type = "button" value="удалить" onclick="delColumn(this)"></td> `;
+            let table = document.getElementById('ColumnLis');
+
+            table.append(tr);
+        });
+
+
+
+    function delColumn(elem) {
+
+
+
+        let curr_id = elem.parentElement.parentElement.id;
+        elem.parentElement.parentElement.remove();
+
+        curr_id = parseInt(curr_id, 10);
+
+        for (let i = curr_id + 1; i <= id; i++) {
+            let temp = i - 1;
+
+            let elem = document.getElementById(`${i}`);
+            elem.id = temp;
+
+            elem.children[0].children[0].setAttribute("name", `parameters[${temp}].ParamName`);
+            elem.children[1].children[0].setAttribute("name", `parameters[${temp}].ParamValue`);
+            
+        }
+
+        id--;
+    }
+
+
+
+
+    require(['vs/editor/editor.main'], function () {
+
+        function createDependencyProposals(range) {
+            // returning a static list of proposals, not even looking at the prefix (filtering is done by the Monaco editor),
+            // here you could do a server side lookup
+            return [
+                {
+                    label: 'select',
+                    kind: monaco.languages.CompletionItemKind.Function,
+                    documentation: "The Lodash library exported as Node.js modules.",
+                    insertText: 'select',
+                    range: range
+                },
+                {
+                    label: 'where',
+                    kind: monaco.languages.CompletionItemKind.Function,
+                    documentation: "Fast, unopinionated, minimalist web framework",
+                    insertText: 'where',
+                    range: range
+                },
+                {
+                    label: 'order by',
+                    kind: monaco.languages.CompletionItemKind.Function,
+                    documentation: "Recursively mkdir, like <code>mkdir -p</code>",
+                    insertText: 'order by',
+                    range: range
+                },
+                {
+                    label: 'inner',
+                    kind: monaco.languages.CompletionItemKind.Function,                    
+                    insertText: 'inner',
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    range: range
+                },
+                 {
+                    label: 'outer',
+                    kind: monaco.languages.CompletionItemKind.Function,                    
+                    insertText: 'outer',
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    range: range
+                },
+                  {
+                    label: 'right',
+                    kind: monaco.languages.CompletionItemKind.Function,                    
+                    insertText: 'right',
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    range: range
+                },
+                {
+                    label: 'join',
+                    kind: monaco.languages.CompletionItemKind.Function,                    
+                    insertText: 'join',
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    range: range
+                },
+                {
+                    label: 'group by',
+                    kind: monaco.languages.CompletionItemKind.Function,                    
+                    insertText: 'group by',
+                    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                    range: range
+                }
+
+            ];
+        }
+
+
+        monaco.languages.registerCompletionItemProvider('sql', {
+            provideCompletionItems: function (model, position) {
+                // find out if we are completing a property in the 'dependencies' object.
+                var textUntilPosition = model.getValueInRange({ startLineNumber: 1, startColumn: 1, endLineNumber: position.lineNumber, endColumn: position.column });
+                var match = textUntilPosition.match("");
+                if (!match) {
+                    return { suggestions: [] };
+                }
+                var word = model.getWordUntilPosition(position);
+                var range = {
+                    startLineNumber: position.lineNumber,
+                    endLineNumber: position.lineNumber,
+                    startColumn: word.startColumn,
+                    endColumn: word.endColumn
+                };
+                return {
+                    suggestions: createDependencyProposals(range)
+                };
+            }
+        });
+
+        editor = monaco.editor.create(document.getElementById("code"), {
+            theme: 'vs-dark',
+            language: 'sql'
+        });
+        editor.layout();
+
+        
+        
+        let textInput = document.getElementById("Query");
+        console.log(textInput);
+        editor.onDidChangeModelContent((event) => {
+             console.log(editor.getValue());
+            textInput.setAttribute("value", editor.getValue());
+        })
+    });
+
+</script>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
